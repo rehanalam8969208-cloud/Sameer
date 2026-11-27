@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Showcase</title>
+  <style>
+    :root {
+      --bg-dark: #090c14;
+      --glass: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.14);
+      --text-main: #f3f6fc;
+      --text-muted: #9aa4b8;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.35);
+      --danger: #ef4444;
+      --success: #22c55e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.18), transparent 40%),
+        radial-gradient(circle at 85% 25%, rgba(168, 85, 247, 0.15), transparent 45%),
+        var(--bg-dark);
+      color: var(--text-main);
+      padding-bottom: 48px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: rgba(12, 16, 28, 0.72);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .brand {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .btn {
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      color: var(--text-main);
+      padding: 9px 15px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 6px 20px var(--accent-glow);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.16);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+
+    .admin-panel {
+      display: none;
+      margin-bottom: 28px;
+      padding: 20px;
+      border-radius: 22px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .admin-panel.active {
+      display: block;
+    }
+
+    .admin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .admin-header h2 {
+      font-size: 1.1rem;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--glass-border);
+      background: rgba(5, 8, 16, 0.65);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--accent);
+    }
+
+    textarea {
+      min-height: 95px;
+      resize: vertical;
+    }
+
+    .preview-strip {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .preview-strip img {
+      width: 72px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 1px solid var(--glass-border);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      border-radius: 22px;
+      overflow: hidden;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255, 255, 255, 0.26);
+    }
+
+    .card-img-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: rgba(255, 255, 255, 0.03);
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .card-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-badge {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      background: rgba(9, 12, 20, 0.72);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(8px);
+    }
+
+    .card-body {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .card-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-footer {
+      margin-top: auto;
+      padding-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .date-text {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .admin-actions {
+      display: none;
+    }
+
+    body.admin-mode .admin-actions {
+      display: inline-flex;
+      gap: 6px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(4, 6, 12, 0.78);
+      backdrop-filter: blur(12px);
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 540px;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 20px;
+      border-radius: 24px;
+      background: rgba(16, 21, 36, 0.92);
+      border: 1px solid var(--glass-border);
+    }
+
+    .gallery-strip {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin: 14px 0;
+    }
+
+    .gallery-strip img {
+      height: 220px;
+      border-radius: 14px;
+      border: 1px solid var(--glass-border);
+      flex-shrink: 0;
+      object-fit: cover;
+    }
+
+    .status-toast {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%);
+      z-index: 80;
+      padding: 10px 16px;
+      border-radius: 14px;
+      background: rgba(15, 20, 34, 0.92);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      font-size: 0.88rem;
+      display: none;
+    }
+
+    .status-toast.show {
+      display: block;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--text-muted);
+      border: 1px dashed var(--glass-border);
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div id="brandTitle" class="brand" title="Tap 5 times for admin">Catalog</div>
+    <button id="exitAdminBtn" class="btn" style="display: none;" onclick="logoutAdmin()">Exit Admin</button>
+  </header>
+
+  <main class="container">
+    <section id="adminPanel" class="admin-panel">
+      <div class="admin-header">
+        <h2>Add New Product</h2>
+      </div>
+      <div class="form-group">
+        <label for="prodTitle">Product Title</label>
+        <input id="prodTitle" type="text" placeholder="Enter product title" />
+      </div>
+      <div class="form-group">
+        <label for="prodDesc">Description</label>
+        <textarea id="prodDesc" placeholder="Write full product description..."></textarea>
+      </div>
+      <div class="form-group">
+        <label for="prodImages">Photos (Select up to 4 photos)</label>
+        <input id="prodImages" type="file" accept="image/*" multiple onchange="handleImagePreview(event)" />
+        <div id="previewStrip" class="preview-strip"></div>
+      </div>
+      <button id="uploadBtn" class="btn btn-primary" onclick="uploadProduct()">Upload Product</button>
+    </section>
+
+    <div id="productsGrid" class="grid"></div>
+  </main>
+
+  <!-- Secret Password Modal -->
+  <div id="authModal" class="modal-backdrop">
+    <div class="modal-box">
+      <h3 style="margin-bottom: 12px;">Admin Access</h3>
+      <div class="form-group">
+        <label for="adminPassInput">Password</label>
+        <input id="adminPassInput" type="password" placeholder="Enter password" />
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="btn" onclick="closeAuthModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="verifyPassword()">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Detail Modal -->
+  <div id="detailModal" class="modal-backdrop" onclick="closeDetailOnBackdrop(event)">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+        <h3 id="detailTitle"></h3>
+        <button class="btn" onclick="closeDetailModal()">Close</button>
+      </div>
+      <div id="detailGallery" class="gallery-strip"></div>
+      <p id="detailDesc" style="color: var(--text-muted); line-height: 1.55; white-space: pre-line;"></p>
+    </div>
+  </div>
+
+  <div id="toast" class="status-toast"></div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbxTlV2Eln0AXW7ePeT1U3EfSjJhgSfJQVHZwQCUC79Rk5jMMmlb5ZWmFIAHMZNcq_Y/exec";
+
+    let productsData = [];
+    let selectedImagesBase64 = [];
+    let tapCount = 0;
+    let tapTimer = null;
+    let adminPassword = sessionStorage.getItem("admin_pass") || "";
+
+    document.getElementById("brandTitle").addEventListener("click", () => {
+      tapCount++;
+      clearTimeout(tapTimer);
+      tapTimer = setTimeout(() => {
+        tapCount = 0;
+      }, 1500);
+
+      if (tapCount >= 5) {
+        tapCount = 0;
+        if (adminPassword) {
+          enableAdminUI();
+        } else {
+          document.getElementById("adminPassInput").value = "";
+          document.getElementById("authModal").classList.add("open");
+          document.getElementById("adminPassInput").focus();
+        }
+      }
+    });
+
+    function closeAuthModal() {
+      document.getElementById("authModal").classList.remove("open");
+    }
+
+    function verifyPassword() {
+      const pass = document.getElementById("adminPassInput").value.trim();
+      if (!pass) {
+        showToast("Please enter password");
+        return;
+      }
+      adminPassword = pass;
+      sessionStorage.setItem("admin_pass", pass);
+      closeAuthModal();
+      enableAdminUI();
+    }
+
+    function enableAdminUI() {
+      document.body.classList.add("admin-mode");
+      document.getElementById("adminPanel").classList.add("active");
+      document.getElementById("exitAdminBtn").style.display = "inline-block";
+      showToast("Admin mode active");
+    }
+
+    function logoutAdmin() {
+      adminPassword = "";
+      sessionStorage.removeItem("admin_pass");
+      document.body.classList.remove("admin-mode");
+      document.getElementById("adminPanel").classList.remove("active");
+      document.getElementById("exitAdminBtn").style.display = "none";
+      showToast("Exited admin mode");
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    function handleImagePreview(event) {
+      const files = Array.from(event.target.files || []).slice(0, 4);
+      const strip = document.getElementById("previewStrip");
+      strip.innerHTML = "";
+      selectedImagesBase64 = [];
+
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const base64 = e.target.result;
+          selectedImagesBase64.push(base64);
+          const img = document.createElement("img");
+          img.src = base64;
+          strip.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function loadProducts() {
+      const grid = document.getElementById("productsGrid");
+      grid.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;">Loading products...</div>`;
+
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        productsData = Array.isArray(data) ? data : [];
+        renderProducts();
+      } catch (err) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;">Failed to load products.</div>`;
+      }
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById("productsGrid");
+      if (!productsData.length) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;">No products added yet.</div>`;
+        return;
+      }
+
+      grid.innerHTML = productsData.map((item, idx) => {
+        const firstImg = (item.images && item.images[0]) ? item.images[0] : "";
+        const count = item.images ? item.images.length : 0;
+
+        return `
+          <article class="card">
+            <div class="card-img-wrap" onclick="openDetail(${idx})">
+              ${firstImg ? `<img src="${firstImg}" alt="${escapeHtml(item.title)}" loading="lazy" />` : ""}
+              ${count > 1 ? `<span class="photo-badge">${count} photos</span>` : ""}
+            </div>
+            <div class="card-body">
+              <div class="card-title" onclick="openDetail(${idx})">${escapeHtml(item.title)}</div>
+              <div class="card-desc">${escapeHtml(item.description)}</div>
+              <div class="card-footer">
+                <span class="date-text">${escapeHtml(item.date || "")}</span>
+                <div class="admin-actions">
+                  <button class="btn btn-danger" onclick="deleteProduct('${escapeJs(item.id)}')">Delete</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function openDetail(index) {
+      const item = productsData[index];
+      if (!item) return;
+
+      document.getElementById("detailTitle").textContent = item.title || "";
+      document.getElementById("detailDesc").textContent = item.description || "";
+
+      const gallery = document.getElementById("detailGallery");
+      const imgs = item.images || [];
+      gallery.innerHTML = imgs.map((url) => `<img src="${url}" alt="${escapeHtml(item.title)}" />`).join("");
+
+      document.getElementById("detailModal").classList.add("open");
+    }
+
+    function closeDetailModal() {
+      document.getElementById("detailModal").classList.remove("open");
+    }
+
+    function closeDetailOnBackdrop(e) {
+      if (e.target.id === "detailModal") {
+        closeDetailModal();
+      }
+    }
+
+    async function uploadProduct() {
+      const title = document.getElementById("prodTitle").value.trim();
+      const description = document.getElementById("prodDesc").value.trim();
+      const btn = document.getElementById("uploadBtn");
+
+      if (!title || !description) {
+        showToast("Title and description are required");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Uploading...";
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            password: adminPassword,
+            title,
+            description,
+            images: selectedImagesBase64
+          })
+        });
+
+        const result = await res.json();
+        if (result.status === "success") {
+          showToast("Product uploaded");
+          document.getElementById("prodTitle").value = "";
+          document.getElementById("prodDesc").value = "";
+          document.getElementById("prodImages").value = "";
+          document.getElementById("previewStrip").innerHTML = "";
+          selectedImagesBase64 = [];
+          await loadProducts();
+        } else {
+          showToast(result.message || "Upload failed");
+        }
+      } catch (err) {
+        showToast("Network error while uploading");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Upload Product";
+      }
+    }
+
+    async function deleteProduct(id) {
+      if (!id) return;
+      showToast("Deleting...");
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "delete",
+            password: adminPassword,
+            id
+          })
+        });
+
+        const result = await res.json();
+        if (result.status === "success") {
+          showToast("Product deleted");
+          await loadProducts();
+        } else {
+          showToast(result.message || "Delete failed");
+        }
+      } catch (err) {
+        showToast("Network error while deleting");
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function escapeJs(str) {
+      return String(str || "").replace(/'/g, "\\'");
+    }
+
+    if (adminPassword) {
+      enableAdminUI();
+    }
+    loadProducts();
+  </script>
+</body>
+        </html>
